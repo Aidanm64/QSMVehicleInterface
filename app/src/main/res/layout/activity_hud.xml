@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.qsm.aidan_mckenna.qsmvehicleinterface.HUD">
+
+    <Button
+        android:id="@+id/returnButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Return"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/controlsContraintLayout"
+        android:layout_width="258dp"
+        android:layout_height="169dp"
+        android:layout_marginTop="4dp"
+        android:background="@color/black_overlay"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/endRaceButton"
+            android:layout_width="110dp"
+            android:layout_height="38dp"
+            android:text="End"
+            app:layout_constraintTop_toBottomOf="@+id/pauseRaceButton"
+            tools:layout_editor_absoluteX="0dp" />
+
+        <Button
+            android:id="@+id/pauseRaceButton"
+            android:layout_width="110dp"
+            android:layout_height="37dp"
+            android:text="Pause"
+            app:layout_constraintTop_toBottomOf="@+id/startRaceButton"
+            tools:layout_editor_absoluteX="0dp" />
+
+        <Button
+            android:id="@+id/startRaceButton"
+            android:layout_width="110dp"
+            android:layout_height="37dp"
+            android:text="Start"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Chronometer
+            android:id="@+id/raceChronometer"
+            android:layout_width="94dp"
+            android:layout_height="22dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toEndOf="@+id/startRaceButton"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/raceTelemetryContraintLayout"
+        android:layout_width="257dp"
+        android:layout_height="169dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/speedTitleTextView"
+            android:layout_width="87dp"
+            android:layout_height="26dp"
+            android:layout_marginEnd="16dp"
+            android:text="KM/H"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:layout_editor_absoluteY="75dp" />
+
+        <TextView
+            android:id="@+id/speedTextView"
+            android:layout_width="87dp"
+            android:layout_height="41dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/speedTitleTextView"
+            app:layout_constraintVertical_bias="0.272" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.constraint.ConstraintLayout>

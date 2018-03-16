@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">QSM Vehicle Interface</string>
+    <string name="setup">Setup</string>
+    <string name="home">Home</string>
+    <string name="hud">HUD</string>
+
+    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string name="title_activity_hud">HUD</string>
+    <string name="title">QSM Vehicle telemetry</string>
+
+    <string name="title_activity_race_hud">RaceHUDActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
