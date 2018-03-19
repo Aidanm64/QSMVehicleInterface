@@ -10,6 +10,42 @@ import android.support.annotation.Nullable;
 
 /**
  * Created by aidan_mckenna on 2018-03-07.
+ *
+ * The Bluetooth Helper manages interaction with the EFI/ECU
+ * Data is output from the EFI via data package and sent over bluetooth to
+ * the android device bluetooth module
+ *
+ * Data package:
+ * 27x8bit hex bytes (0x00)
+ * 115200 baud
+ * no parity bit
+ * 8 word header
+ * 1 stop word
+ * sent every 100ms
+ *
+ * RPM -revolutions per minute
+ *
+ * MAP - Manifold absolute pressure
+ *
+ * TPS - Throttle position sensor
+ *
+ * ECT - Engine Coolant temperature
+ *
+ * IAT - Intake Air temperature
+ *
+ * 02S - Air/Fuel ratio (i think)
+ *
+ * SPARK -
+ *
+ * FUELPW1 - Fuel Pulse width
+ *
+ * FUELPW2 - Fuel Pulse width
+ *
+ * UbAdc
+ *
+ *
+ *
+ *
  */
 
 public class BluetoothHelper extends Service {

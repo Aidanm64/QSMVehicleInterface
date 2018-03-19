@@ -44,10 +44,10 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
+        /*This is where im putting all startup code
+         * this is where all permissions are verified and data collection services are started */
         verifyPermissions();
         verifyHardwareEnabled();
-
-        Log.d(TAG, "Starting services");
         startBackgroundServices();
 
 
@@ -71,8 +71,25 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+    /* This is the function that starts all background services
+    * ensure that all services started here have a corresponding stopService condition in onDestroy()*/
+    private void startBackgroundServices()
+    {
+        //Initializes the GPS helper to run in the background
+        Intent GPSHelperServiceIntent = new Intent(getApplicationContext(), GPSHelper.class);
+        startService(GPSHelperServiceIntent);
+        Log.d(TAG, "GPS Service started");
+
+        Intent SensorsHelperServiceIntent = new Intent(getApplicationContext(), SensorsHelper.class);
+        //startService(SensorsHelperServiceIntent);
+        //Log.d(TAG, "Sensor Service started");
+    }
+
+
+    /* This provides all the pop up verification for device permissions such as GPS access*/
     private void verifyPermissions()
     {
+        Log.d(TAG, "Verifying Permissions");
         if ( ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED )
         {
             ActivityCompat.requestPermissions(this, new String[]{
@@ -81,16 +98,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /* This provides all pop up verification for hardware requirements such as Bluetooth enable
+    * bluetooth doesnt work on the emulator */
     private void verifyHardwareEnabled()
     {
-        if(!BluetoothAdapter.getDefaultAdapter().isEnabled())
+        /*if(!BluetoothAdapter.getDefaultAdapter().isEnabled())
         {
             int MY_BT_ENABLED = 0;
             Intent enableBTIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBTIntent, MY_BT_ENABLED);
-        }
+        }*/
     }
 
+    /* This is just the catcher for result codes from startActivityForResult() or reQuestPermissions()
+    * Shouldnt need to use it much other than for logging
+    * */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -108,20 +130,11 @@ public class MainActivity extends AppCompatActivity {
         }
         if(requestCode==MY_BT_ENABLED)
         {
-
+            Log.d(TAG, "Bluetooth is enabled");
         }
     }
 
-    private void startBackgroundServices()
-    {
-        //Initializes the GPS helper to run in the background
-        Intent GPSHelperServiceIntent = new Intent(getApplicationContext(), GPSHelper.class);
-        //
-        startService(GPSHelperServiceIntent);
-        Log.d(TAG, "GPS Service started");
-
-    }
-
+    /* -----------------------------------------------------------------------------------------------------*/
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -132,9 +145,6 @@ public class MainActivity extends AppCompatActivity {
         stopService(new Intent(getApplicationContext(), BluetoothHelper.class));
         Log.d(TAG, "Services Stopped");
     }
-
-
-
 
     /* -----------------------------------------------------------------------------------------------------*/
 

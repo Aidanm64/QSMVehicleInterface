@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -19,10 +20,10 @@ import android.widget.Toast;
 
 import java.util.Optional;
 
-/*
+/**
 The purpose if the HUD activity is to provide an interface for the driver of the QSM vehicle
 
-To ensure resposiveness of the HUD interface components, all data provided to the activity must
+To ensure responsiveness of the HUD interface components, all data provided to the activity must
 be processed externally and sent to the HUD broadcast receiver via and intent containing the relevant information
 
 This will ensure that the only operations/calculations performed the HUD activity are ones that update the displayed values
@@ -30,14 +31,13 @@ This will ensure that the only operations/calculations performed the HUD activit
  */
 public class HUD extends AppCompatActivity {
 
+    /*logging tag*/
+    static private final String TAG = "HUD";
+
     //define listeners to be used
     GPSHelperListener GPSListener;
     SensorHelperListener SensListener;
     BluetoothHelperListener BTListener;
-
-
-    //C_Race currentRace;
-
 
     /* -----------------------------------------------------------------------------------------------------*/
     @Override
@@ -61,19 +61,14 @@ public class HUD extends AppCompatActivity {
             }
         });
 
-
+        /*These buttons are to be used for the race timer
+        * Seriously debating making a fragment for this cus i think it would be dope and better
+        * */
         Button startRaceButton = findViewById(R.id.startRaceButton);
         startRaceButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                /*if (currentRace.IN_RACE) {
-                    //currentRace = new C_Race();
-                    //currentRace.start();
-                }
-                else
-                {
-                    //currentRace.resume();
-                }*/
+
             }
         });
 
@@ -91,7 +86,7 @@ public class HUD extends AppCompatActivity {
     protected void onStart()
     {
         super.onStart();
-        Toast.makeText(getApplicationContext(), "GPS listener started",Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "HUD Activity started");
 
         //sets the broadcast listeners to receive specific intents based on filters
         registerListeners();
@@ -121,32 +116,43 @@ public class HUD extends AppCompatActivity {
 
 
     /* -----------------------------------------------------------------------------------------------------*/
+    /* -----------------------------------------------------------------------------------------------------*/
+    /** LISTENER BASED UI ELEMENTS
+     * These listeners are used to receive intents from the various background services
+     * The supporting methods are used to take values captured by the recievers and update their corresponding UI elements*/
+
     void registerListeners()
     {
         //Setting up the GPS listener to receive location update intents from the GPSHelper Service
         GPSListener = new GPSHelperListener();
         IntentFilter locationUpdateFilter = new IntentFilter("LOCATION_UPDATE");
         registerReceiver(GPSListener, locationUpdateFilter);
+        Log.d(TAG, "GPS listener registered");
 
         SensListener = new SensorHelperListener();
         IntentFilter sensorUpdateFilter = new IntentFilter("SENSOR_UPDATE");
         registerReceiver(SensListener, sensorUpdateFilter);
+        Log.d(TAG, "Sensor listener registered");
 
         BTListener = new BluetoothHelperListener();
         IntentFilter BTUpdateFilter = new IntentFilter("BT_UPDATE");
         registerReceiver(BTListener, BTUpdateFilter);
+        Log.d(TAG, "Bluetooth listener registered");
 
+
+        Toast.makeText(getApplicationContext(), "Listeners started",Toast.LENGTH_SHORT).show();
     }
 
     /* -----------------------------------------------------------------------------------------------------*/
-    /* GPS based elements
+    /** GPS based elements*/
     /* Broadcast receiver responsible for catching the location updates sent by the GPS helper*/
     class GPSHelperListener extends BroadcastReceiver
     {
-
         @Override
         public void onReceive(Context context, Intent intent)
         {
+            Log.d(TAG, "Location Update Received");
+
             Bundle bundle = intent.getExtras();
             Float speed = bundle.getFloat("SPEED");
             updateSpeedometer(speed);
@@ -169,11 +175,13 @@ public class HUD extends AppCompatActivity {
         speedometerTextView.setText(speedString);
     }
 
+
     /* -----------------------------------------------------------------------------------------------------*/
-    /* Sensor based elements */
+    /** Sensor based elements */
     /* Broadcast receiver responsible for catching the sensor updates sent by the sensor helper*/
 
-    //MATT
+
+    /** MATT GO HERE*/
     /*this is where you gotta put the stuff to receive the stuff and split it apart,
     you really just need to grab the rpm for the mean time though*/
     class SensorHelperListener extends BroadcastReceiver
@@ -181,6 +189,7 @@ public class HUD extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent)
         {
+            Log.d(TAG, "Sensor Update Received");
 
             //updateRMPGauge(RPM);
         }
@@ -195,17 +204,18 @@ public class HUD extends AppCompatActivity {
 
 
     /* -----------------------------------------------------------------------------------------------------*/
-    /* Bluetooth/Network based elements
+    /** Bluetooth/Network based elements
      */
     /* Broadcast receiver responsible for catching the location updates sent by the bluetooth helper*/
     class BluetoothHelperListener extends BroadcastReceiver
     {
         @Override
         public void onReceive(Context context, Intent intent) {
-
+            Log.d(TAG, "Bluetooth Update Received");
 
         }
     }
+
 
 
     /* -----------------------------------------------------------------------------------------------------*/

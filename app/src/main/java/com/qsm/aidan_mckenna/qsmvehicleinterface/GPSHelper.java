@@ -14,13 +14,18 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
 /**
  * Created by aidan_mckenna on 2018-03-07.
+ *
+ * The GPSHelper class is used to provide the necessary GPS data
+ * to the rest of the app
+ *
+ * Send data in Intent.Action.LOCATION_UPDATE
+ *
  */
 
 public class GPSHelper extends Service
@@ -48,7 +53,6 @@ public class GPSHelper extends Service
             Log.d(TAG, "listening for location changes");
 
             Toast.makeText(getApplicationContext(),"GPS service initiated", Toast.LENGTH_LONG).show();
-
         }
         else
         {
@@ -56,33 +60,19 @@ public class GPSHelper extends Service
         }
     }
 
-    private void initLocationServices()
-    {
-
-    }
-
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
 
-        return START_STICKY;
+        return START_STICKY; //ensures that the service stays running when when its not actually being used
     }
 
 
-    public IBinder onBind(Intent intent) {
-
-        return null;
-    }
-
-
-
-    /*public class GPSHelperBinder extends Binder {
-        GPSHelper getService(){
-            return GPSHelper.this;
-        }
-    }*/
-
+    /* This is the part of the Service that actually does the work
+    *  The devices GPS module sends out a Location object filled with goodies
+    *  This receiver grabs that object and extracts what it needs
+    *  then it packages all that data into an intent and sends it to the rest of the app
+    *  */
     class locListener implements LocationListener
     {
         @Override
@@ -121,4 +111,20 @@ public class GPSHelper extends Service
         }
     }
 
+
+    private void initLocationServices()
+    {
+
+    }
+
+    public IBinder onBind(Intent intent) {
+
+        return null;
+    }
+
+    /*public class GPSHelperBinder extends Binder {
+        GPSHelper getService(){
+            return GPSHelper.this;
+        }
+    }*/
 }
