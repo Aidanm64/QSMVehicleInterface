@@ -29,6 +29,7 @@ be processed externally and sent to the HUD broadcast receiver via and intent co
 This will ensure that the only operations/calculations performed the HUD activity are ones that update the displayed values
 
  */
+
 public class HUD extends AppCompatActivity {
 
     /*logging tag*/
@@ -38,6 +39,7 @@ public class HUD extends AppCompatActivity {
     GPSHelperListener GPSListener;
     SensorHelperListener SensListener;
     BluetoothHelperListener BTListener;
+    C_Race raceTimer;
 
     /* -----------------------------------------------------------------------------------------------------*/
     @Override
@@ -50,6 +52,8 @@ public class HUD extends AppCompatActivity {
 
         //access xml members
         setContentView(R.layout.activity_hud);
+        raceTimer = new C_Race(10);
+
 
         //setting up actions for return button
         Button returnButton = findViewById(R.id.returnButton);
@@ -60,26 +64,6 @@ public class HUD extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        /*These buttons are to be used for the race timer
-        * Seriously debating making a fragment for this cus i think it would be dope and better
-        * */
-        Button startRaceButton = findViewById(R.id.startRaceButton);
-        startRaceButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-
-            }
-        });
-
-        Button pauseRaceButton = findViewById(R.id.pauseRaceButton);
-        pauseRaceButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                //currentRace.pause();
-            }
-        });
-
     }
 
     @Override
@@ -93,11 +77,7 @@ public class HUD extends AppCompatActivity {
 
     }
     @Override
-    protected void onResume()
-    {
-        super.onResume();
-    }
-
+    protected void onResume() {super.onResume();}
     @Override
     protected void onPause() {super.onPause();}
     @Override
@@ -114,6 +94,10 @@ public class HUD extends AppCompatActivity {
     @Override
     protected void onDestroy() {super.onDestroy();}
 
+    /* -----------------------------------------------------------------------------------------------------*/
+    /* -----------------------------------------------------------------------------------------------------*/
+    /** Race timer and stuff like that
+     */
 
     /* -----------------------------------------------------------------------------------------------------*/
     /* -----------------------------------------------------------------------------------------------------*/
@@ -156,6 +140,7 @@ public class HUD extends AppCompatActivity {
             Bundle bundle = intent.getExtras();
             Float speed = bundle.getFloat("SPEED");
             updateSpeedometer(speed);
+
         }
 
     }
@@ -171,8 +156,8 @@ public class HUD extends AppCompatActivity {
         //float progressBarValue = speed/100*speedometerProgressBar.getMax();
         //speedometerProgressBar.setProgress((int) progressBarValue);
 
-        String speedString = Float.toString(speed);
-        speedometerTextView.setText(speedString);
+        //String speedString = Float.toString(speed);
+        speedometerTextView.setText(speed + "");
     }
 
 
@@ -180,10 +165,6 @@ public class HUD extends AppCompatActivity {
     /** Sensor based elements */
     /* Broadcast receiver responsible for catching the sensor updates sent by the sensor helper*/
 
-
-    /** MATT GO HERE*/
-    /*this is where you gotta put the stuff to receive the stuff and split it apart,
-    you really just need to grab the rpm for the mean time though*/
     class SensorHelperListener extends BroadcastReceiver
     {
         @Override
@@ -195,17 +176,17 @@ public class HUD extends AppCompatActivity {
         }
     }
 
-    /*this updates the ui, should have a title number and gauge, try to make it red if it goes over a certain value
-    * i think we might set that value in the config activity who knows*/
-    private void updateRMPGauge(int RPM)
-    {
 
-    }
+
 
 
     /* -----------------------------------------------------------------------------------------------------*/
     /** Bluetooth/Network based elements
      */
+    /** MATT GO HERE*/
+    /*this is where you gotta put the stuff to receive the stuff and split it apart,
+    you really just need to grab the rpm for the mean time though*/
+
     /* Broadcast receiver responsible for catching the location updates sent by the bluetooth helper*/
     class BluetoothHelperListener extends BroadcastReceiver
     {
@@ -213,50 +194,167 @@ public class HUD extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "Bluetooth Update Received");
 
+            //get data out of intent
+            Bundle EFIDataBundle = intent.getExtras();
+            //pass values into ui updating functions
+            updateRPMGauge(EFIDataBundle.getInt("RPM"));
+            //updateFuelEconomyGuage(EFIDataBundle.getInt("
         }
     }
 
+    /*this updates the ui, should have a title number and gauge, try to make it red if it goes over a certain value
+* i think we might set that value in the config activity who knows*/
+    private void updateRPMGauge(int RPM)
+    {
+        //insert code for updating RPM ui elements
+    }
+    private void updateFuelEconomyGauge()
+    {
+
+    }
+    private void updateTempGauge()
+    {
+
+    }
 
 
     /* -----------------------------------------------------------------------------------------------------*/
-    /*Class that contains race timer
+    //Class that contains
    private class C_Race
    {
-       private Chronometer timer;
-       private boolean IN_RACE;
+       Chronometer raceTimer;
+       Chronometer lapTimer;
+       TextView lapTextView;
+       Button startRaceButton;
+       Button pauseRaceButton;
+       Button stopRaceButton;
+       Button incrementLapButton;
+
+       int currentLap = 0;
+       int totalLaps;
+
+       long timeBase;
+       long raceElapsedTime = 0;
+       long lapElapsedTime = 0;
+
+       String TAG;
+
+       private boolean inRace;
+
        //private tmp;
-        //maybe pass in existing chronometer
-       public C_Race()
-       {
-           timer = findViewById();
 
+       public C_Race(int totalLaps)
+       {
+           this.totalLaps = totalLaps;
+           inRace = false;
+
+           raceTimer = findViewById(R.id.raceChronometer);
+           lapTimer = findViewById(R.id.lapChronometer);
+           lapTextView = findViewById(R.id.lapTextView);
+           pauseRaceButton = findViewById(R.id.pauseRaceButton);
+
+
+           /*These buttons are to be used for the race timer
+           * Seriously debating making a fragment for this cus i think it would be dope and better
+           * */
+
+           startRaceButton = findViewById(R.id.startRaceButton);
+           startRaceButton.setOnClickListener(new View.OnClickListener(){
+               @Override
+               public void onClick(View v){
+                   if(inRace)
+                   {
+                       resume();
+                   }
+                   else
+                   {
+                       start();
+                   }
+               }
+           });
+
+           pauseRaceButton = findViewById(R.id.pauseRaceButton);
+           pauseRaceButton.setOnClickListener(new View.OnClickListener(){
+               @Override
+               public void onClick(View v){
+                   pause();
+               }
+           });
+
+           stopRaceButton = findViewById(R.id.endRaceButton);
+           stopRaceButton.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View v) {
+                   end();
+               }
+           });
+           incrementLapButton = findViewById(R.id.incrementLapButton);
+           incrementLapButton.setOnClickListener(new View.OnClickListener(){
+               @Override
+               public void onClick(View v){
+                   addLap();
+                   //Toast.makeText(getApplicationContext(), "incrementing lap", Toast.LENGTH_SHORT).show();
+               }
+           });
+
+           setLap(0);
        }
 
-
-
-       public void start()
+       void start()
        {
-           if(!IN_RACE)
-           {
-               IN_RACE = true;
-               timer.setBase(SystemClock.elapsedRealtime());
+           if(!inRace) {
+               timeBase = SystemClock.elapsedRealtime();
+               inRace = true;
+               setLap(1);
+               raceTimer.setBase(timeBase);
+               lapTimer.setBase(timeBase);
+               //startRaceButton.setText("PAUSE");
            }
-           timer.start();
+           raceTimer.start();
+           lapTimer.start();
        }
 
-       public void resume()
+       void resume()
        {
-           timer.start();
+           raceTimer.setBase(SystemClock.elapsedRealtime() - raceElapsedTime);
+           lapTimer.setBase(SystemClock.elapsedRealtime() - lapElapsedTime);
+
+           raceTimer.start();
+           lapTimer.start();
        }
-       public void pause()
+       void pause()
        {
-           //timer.setBase(SystemClock.elapsedRealtime());
-           timer.stop();
+
+           raceElapsedTime = SystemClock.elapsedRealtime() - raceTimer.getBase();
+           //Toast.makeText(getApplicationContext(),"elapsed time - " + elapsedTime, Toast.LENGTH_SHORT).show();
+           raceTimer.stop();
+
+           //raceTimer.setBase(SystemClock.elapsedRealtime());
+
+           lapElapsedTime = SystemClock.elapsedRealtime() -lapTimer.getBase();
+           lapTimer.stop();
+           //lapTimer.setBase(SystemClock.elapsedRealtime());
        }
-       public void end()
+       void end()
        {
-           timer.stop();
+           raceTimer.stop();
+
+       }
+
+       private void addLap()
+       {
+           currentLap++;
+           setLap(currentLap);
+           lapTimer.setBase(SystemClock.elapsedRealtime());
+
+       }
+       private void setLap(int lap)
+       {
+           if(lap <= totalLaps)
+           {
+               Toast.makeText(getApplicationContext(), "Setting lap =  " + lap, Toast.LENGTH_SHORT).show();
+               lapTextView.setText(lap + " /10");
+           }
        }
    }
-   */
 }

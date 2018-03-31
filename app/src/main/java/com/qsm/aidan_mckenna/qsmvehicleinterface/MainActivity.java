@@ -29,11 +29,11 @@ public class MainActivity extends AppCompatActivity {
     /*logging tag*/
     static private final String TAG = "MainActivity";
 
-    /*request codes*/
+    /*request codes for on*/
     static private int MY_PERMISSION_ACCESS_FINE_LOCATION = 1;
     static private int MY_BT_ENABLED = 1;
 
-
+    Thread ServiceThread;
 
     /* -----------------------------------------------------------------------------------------------------*/
     @Override
@@ -69,22 +69,52 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
     }
+    /**IMPORTANT: ensure all services are stopped in the MainActivity onStop()*/
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+
+        //stops the background services as the app closes
+        stopService(new Intent(getApplicationContext(), GPSHelper.class));
+        stopService(new Intent(getApplicationContext(), SensorsHelper.class));
+        stopService(new Intent(getApplicationContext(), BluetoothHelper.class));
+        Log.d(TAG, "Services Stopped");
+    }
+    /* -----------------------------------------------------------------------------------------------------*/
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    /* -----------------------------------------------------------------------------------------------------*/
+    /* -----------------------------------------------------------------------------------------------------*/
+    /** STARTUP METHODS
+     *
+     * Put functions here that are to be called at startup
+     */
     /* This is the function that starts all background services
     * ensure that all services started here have a corresponding stopService condition in onDestroy()*/
     private void startBackgroundServices()
     {
-        //Initializes the GPS helper to run in the background
-        Intent GPSHelperServiceIntent = new Intent(getApplicationContext(), GPSHelper.class);
-        startService(GPSHelperServiceIntent);
-        Log.d(TAG, "GPS Service started");
 
-        Intent SensorsHelperServiceIntent = new Intent(getApplicationContext(), SensorsHelper.class);
-        //startService(SensorsHelperServiceIntent);
-        //Log.d(TAG, "Sensor Service started");
+            //Initializes the GPS helper to run in the background
+            Intent GPSHelperServiceIntent = new Intent(getApplicationContext(), GPSHelper.class);
+            startService(GPSHelperServiceIntent);
+            Log.d(TAG, "GPS Service started");
+
+            Intent SensorsHelperServiceIntent = new Intent(getApplicationContext(), SensorsHelper.class);
+            //startService(SensorsHelperServiceIntent);
+            //Log.d(TAG, "Sensor Service started");
+
+            Intent BluetoothHelperServiceIntent = new Intent(getApplicationContext(), BluetoothHelper.class);
+            //startService(BluetoothHelperServiceIntent);
+            //Log.d(TAG, "Bluetooth Service started");f
+
+
+
     }
-
 
     /* This provides all the pop up verification for device permissions such as GPS access*/
     private void verifyPermissions()
@@ -99,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /* This provides all pop up verification for hardware requirements such as Bluetooth enable
-    * bluetooth doesnt work on the emulator */
+    * bluetooth doesn't work on the emulator */
     private void verifyHardwareEnabled()
     {
         /*if(!BluetoothAdapter.getDefaultAdapter().isEnabled())
@@ -128,27 +158,23 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
-        if(requestCode==MY_BT_ENABLED)
+        else if(requestCode==MY_BT_ENABLED)
         {
             Log.d(TAG, "Bluetooth is enabled");
         }
     }
 
-    /* -----------------------------------------------------------------------------------------------------*/
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
 
-        //stops the background services as the app closes
-        stopService(new Intent(getApplicationContext(), GPSHelper.class));
-        stopService(new Intent(getApplicationContext(), SensorsHelper.class));
-        stopService(new Intent(getApplicationContext(), BluetoothHelper.class));
-        Log.d(TAG, "Services Stopped");
+
+
+    class DataServicesManager implements Runnable
+    {
+        @Override
+        public void run()
+        {
+
+        }
+
     }
-
-    /* -----------------------------------------------------------------------------------------------------*/
-
-
-
 
 }
