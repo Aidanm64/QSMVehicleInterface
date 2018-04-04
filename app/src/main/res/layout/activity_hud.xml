@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorHUDBackground"
     tools:context="com.qsm.aidan_mckenna.qsmvehicleinterface.HUD">
 
     <Button
@@ -18,63 +19,117 @@
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/controlsContraintLayout"
-        android:layout_width="263dp"
-        android:layout_height="141dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="422dp"
+        android:layout_height="172dp"
         android:background="@color/black_overlay"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/raceTitleTextView2"
+            android:layout_width="39dp"
+            android:layout_height="30dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:text="Race:"
+            app:layout_constraintBottom_toTopOf="@+id/lapTitleTextView"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <Button
             android:id="@+id/endRaceButton"
-            android:layout_width="110dp"
+            android:layout_width="44dp"
             android:layout_height="38dp"
-            android:text="End"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pauseRaceButton" />
-
-        <Button
-            android:id="@+id/pauseRaceButton"
-            android:layout_width="110dp"
-            android:layout_height="37dp"
-            android:text="Pause"
+            android:layout_marginStart="8dp"
+            android:text="ST"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/startRaceButton" />
 
         <Button
-            android:id="@+id/startRaceButton"
-            android:layout_width="110dp"
+            android:id="@+id/pauseRaceButton"
+            android:layout_width="44dp"
             android:layout_height="37dp"
-            android:text="Start"
+            android:layout_marginTop="8dp"
+            android:text="||"
+            app:layout_constraintStart_toEndOf="@+id/startRaceButton"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/startRaceButton"
+            android:layout_width="44dp"
+            android:layout_height="37dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text=">"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Chronometer
             android:id="@+id/raceChronometer"
-            android:layout_width="91dp"
+            android:layout_width="125dp"
             android:layout_height="30dp"
+            android:layout_marginBottom="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintStart_toEndOf="@+id/startRaceButton"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:background="@color/timerBackground"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toTopOf="@+id/lapChronometer"
+            app:layout_constraintStart_toEndOf="@+id/raceTitleTextView2" />
 
         <Chronometer
             android:id="@+id/lapChronometer"
-            android:layout_width="90dp"
+            android:layout_width="124dp"
             android:layout_height="30dp"
+            android:layout_marginBottom="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintStart_toEndOf="@+id/pauseRaceButton"
-            app:layout_constraintTop_toBottomOf="@+id/raceChronometer" />
+            android:background="@color/timerBackground"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/lapTitleTextView" />
+
+        <TextView
+            android:id="@+id/lapTitleTextView"
+            android:layout_width="39dp"
+            android:layout_height="30dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:text="Lap:"
+            android:textAlignment="textStart"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/incrementLapButton"
+            android:layout_width="108dp"
+            android:layout_height="153dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
+            android:text="LAP"
+            android:textSize="36sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/controlsContraintLayout"
+            app:layout_constraintTop_toTopOf="@+id/controlsContraintLayout" />
+
+        <TextView
+            android:id="@+id/lapTextView"
+            android:layout_width="178dp"
+            android:layout_height="69dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/gaugeBackground"
+            android:textAlignment="center"
+            android:textSize="48sp"
+            app:layout_constraintEnd_toStartOf="@+id/incrementLapButton"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/raceTelemetryContraintLayout"
-        android:layout_width="257dp"
-        android:layout_height="169dp"
-        android:layout_marginBottom="16dp"
+        android:layout_width="298dp"
+        android:layout_height="155dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -83,8 +138,7 @@
             android:id="@+id/speedTitleTextView"
             android:layout_width="118dp"
             android:layout_height="34dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginEnd="4dp"
             android:text="KM/H"
             android:textAlignment="center"
             android:textSize="26sp"
@@ -92,41 +146,48 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/speedTextView"
+            android:id="@+id/rpmTextView"
             android:layout_width="118dp"
             android:layout_height="110dp"
             android:layout_marginBottom="8dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:background="@color/black_overlay"
+            android:background="@color/gaugeBackground"
             android:textAlignment="center"
+            android:textColor="@color/gaugeTextNormal"
+            android:textSize="64sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/rpmTitleTextView"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <TextView
+            android:id="@+id/speedometerTextView"
+            android:layout_width="118dp"
+            android:layout_height="110dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/gaugeBackground"
+            android:textAlignment="center"
+            android:textColor="@color/gaugeTextNormal"
             android:textSize="64sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/speedTitleTextView" />
+            app:layout_constraintTop_toBottomOf="@+id/speedTitleTextView"
+            app:layout_constraintVertical_bias="0.888" />
+
+        <TextView
+            android:id="@+id/rpmTitleTextView"
+            android:layout_width="118dp"
+            android:layout_height="34dp"
+            android:layout_marginStart="8dp"
+            android:text="RPM"
+            android:textAlignment="center"
+            android:textSize="26sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
-
-    <Button
-        android:id="@+id/incrementLapButton"
-        android:layout_width="107dp"
-        android:layout_height="104dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="8dp"
-        android:text="LAP"
-        android:textSize="36sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/lapTextView"
-        android:layout_width="124dp"
-        android:layout_height="104dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="8dp"
-        android:textAlignment="center"
-        android:textSize="36sp"
-        app:layout_constraintEnd_toStartOf="@+id/incrementLapButton"
-        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

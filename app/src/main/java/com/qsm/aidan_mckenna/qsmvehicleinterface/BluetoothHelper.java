@@ -1,6 +1,8 @@
 package com.qsm.aidan_mckenna.qsmvehicleinterface;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.UUID;
 import android.app.Service;
 import android.app.Activity;
@@ -9,6 +11,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.icu.util.Output;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -60,12 +63,18 @@ public class BluetoothHelper extends Service {
 
     private static final String TAG = "BluetoothHelperService";
 
+    private static final int BTtimeout = 1000;
+
     private String EFIBluetoothModuleName;
     private String EFIMACaddress;
     private UUID defaultUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     BluetoothAdapter mBluetoothAdapter;
     BluetoothDevice EFIBTModule;
+
+    BluetoothSocket EFISocket;
+    BluetoothServerSocket EFIServerSocket;
+    OutputStream EFIOutput;
     Byte[] byteData;
 
     @Override
@@ -84,9 +93,34 @@ public class BluetoothHelper extends Service {
     private void initBluetooth() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        EFIBTModule = mBluetoothAdapter.getRemoteDevice(EFIMACaddress);
+        try
+        {
+            EFIServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(EFIBluetoothModuleName, defaultUUID);
+        }
+        catch(Exception e)
+        {
 
+        }
 
+        try {
+            EFISocket = EFIServerSocket.accept(BTtimeout);
+        }
+        catch(Exception e)
+        {
+            Toast.makeText(getApplicationContext(), "Failed to connect to EFI", Toast.LENGTH_SHORT).show();
+        }
+
+        try {
+            EFIServerSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            EFIOutput = EFISocket.getOutputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -106,7 +140,6 @@ public class BluetoothHelper extends Service {
     private class EFIDataManager {
 
         int dataPacketLength = 10;
-
 
         public EFIDataManager() {
 
@@ -169,8 +202,6 @@ public class BluetoothHelper extends Service {
         }
 
     }
-
-
    /*
    private class ConnectThread extends Thread
     {

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.SystemClock;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,6 +42,9 @@ public class HUD extends AppCompatActivity {
     BluetoothHelperListener BTListener;
     C_Race raceTimer;
 
+    TextView speedometerTextView;
+    TextView rpmTextView;
+
     /* -----------------------------------------------------------------------------------------------------*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +57,9 @@ public class HUD extends AppCompatActivity {
         //access xml members
         setContentView(R.layout.activity_hud);
         raceTimer = new C_Race(10);
+
+        speedometerTextView = findViewById(R.id.speedometerTextView);
+        rpmTextView = findViewById(R.id.rpmTextView);
 
 
         //setting up actions for return button
@@ -149,15 +156,12 @@ public class HUD extends AppCompatActivity {
     its purpose is to update all UI elements that require GPS data (speed, distance, bearing) */
     private void updateSpeedometer(Float speed)
     {
-
-        TextView speedometerTextView = findViewById(R.id.speedTextView);
         //ProgressBar speedometerProgressBar = findViewById(R.id.speedometerProgressBar);
 
         //float progressBarValue = speed/100*speedometerProgressBar.getMax();
         //speedometerProgressBar.setProgress((int) progressBarValue);
 
-        //String speedString = Float.toString(speed);
-        speedometerTextView.setText(speed + "");
+        speedometerTextView.setText(String.valueOf(speed));
     }
 
 
@@ -198,7 +202,7 @@ public class HUD extends AppCompatActivity {
             Bundle EFIDataBundle = intent.getExtras();
             //pass values into ui updating functions
             updateRPMGauge(EFIDataBundle.getInt("RPM"));
-            //updateFuelEconomyGuage(EFIDataBundle.getInt("
+            //updateFuelEconomyGuage(EFIDataBundle.getInt("FUELPW1")
         }
     }
 
@@ -207,6 +211,9 @@ public class HUD extends AppCompatActivity {
     private void updateRPMGauge(int RPM)
     {
         //insert code for updating RPM ui elements
+
+        rpmTextView.setText(String.valueOf(RPM));
+
     }
     private void updateFuelEconomyGauge()
     {
@@ -222,8 +229,11 @@ public class HUD extends AppCompatActivity {
     //Class that contains
    private class C_Race
    {
-       Chronometer raceTimer;
-       Chronometer lapTimer;
+       RaceTimer raceTimer;
+       RaceTimer lapTimer;
+       Chronometer raceChronoView;
+       Chronometer lapChronoView;
+
        TextView lapTextView;
        Button startRaceButton;
        Button pauseRaceButton;
@@ -232,26 +242,31 @@ public class HUD extends AppCompatActivity {
 
        int currentLap = 0;
        int totalLaps;
+       long lapTimes[];
 
-       long timeBase;
-       long raceElapsedTime = 0;
-       long lapElapsedTime = 0;
 
-       String TAG;
+       String TAG = "Race Timer";
 
        private boolean inRace;
 
-       //private tmp;
 
        public C_Race(int totalLaps)
        {
            this.totalLaps = totalLaps;
+           lapTimes = new long[totalLaps];
            inRace = false;
 
-           raceTimer = findViewById(R.id.raceChronometer);
-           lapTimer = findViewById(R.id.lapChronometer);
+           raceChronoView = findViewById(R.id.raceChronometer);
+           lapChronoView = findViewById(R.id.lapChronometer);
+           raceTimer = new RaceTimer(raceChronoView);
+           lapTimer = new RaceTimer(lapChronoView);
+
            lapTextView = findViewById(R.id.lapTextView);
+           lapTextView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.gaugeTextNormal));
+
            pauseRaceButton = findViewById(R.id.pauseRaceButton);
+
+
 
 
            /*These buttons are to be used for the race timer
@@ -262,14 +277,7 @@ public class HUD extends AppCompatActivity {
            startRaceButton.setOnClickListener(new View.OnClickListener(){
                @Override
                public void onClick(View v){
-                   if(inRace)
-                   {
-                       resume();
-                   }
-                   else
-                   {
-                       start();
-                   }
+                   startRace();
                }
            });
 
@@ -288,11 +296,20 @@ public class HUD extends AppCompatActivity {
                    end();
                }
            });
+
            incrementLapButton = findViewById(R.id.incrementLapButton);
+           incrementLapButton.setText(">");
            incrementLapButton.setOnClickListener(new View.OnClickListener(){
                @Override
                public void onClick(View v){
-                   addLap();
+                   if(inRace)
+                   {
+                       addLap();
+                   }
+                   else
+                   {
+                       startRace();
+                   }
                    //Toast.makeText(getApplicationContext(), "incrementing lap", Toast.LENGTH_SHORT).show();
                }
            });
@@ -300,60 +317,119 @@ public class HUD extends AppCompatActivity {
            setLap(0);
        }
 
-       void start()
+       void startRace()
        {
-           if(!inRace) {
-               timeBase = SystemClock.elapsedRealtime();
-               inRace = true;
-               setLap(1);
-               raceTimer.setBase(timeBase);
-               lapTimer.setBase(timeBase);
-               //startRaceButton.setText("PAUSE");
-           }
+           currentLap = 0;
+           inRace = true;
+           addLap();
+           incrementLapButton.setText("LAP");
+           lapTextView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.gaugeTextNormal));
+
            raceTimer.start();
            lapTimer.start();
        }
 
        void resume()
        {
-           raceTimer.setBase(SystemClock.elapsedRealtime() - raceElapsedTime);
-           lapTimer.setBase(SystemClock.elapsedRealtime() - lapElapsedTime);
-
-           raceTimer.start();
-           lapTimer.start();
+           raceTimer.resume();
+           lapTimer.resume();
        }
        void pause()
        {
 
-           raceElapsedTime = SystemClock.elapsedRealtime() - raceTimer.getBase();
-           //Toast.makeText(getApplicationContext(),"elapsed time - " + elapsedTime, Toast.LENGTH_SHORT).show();
            raceTimer.stop();
-
-           //raceTimer.setBase(SystemClock.elapsedRealtime());
-
-           lapElapsedTime = SystemClock.elapsedRealtime() -lapTimer.getBase();
            lapTimer.stop();
-           //lapTimer.setBase(SystemClock.elapsedRealtime());
        }
        void end()
        {
            raceTimer.stop();
+           lapTimer.stop();
 
+           if(!inRace)
+           {
+               inRace = false;
+               setLap(0);
+           }
+           else if(inRace && currentLap == totalLaps)
+           {
+               raceTimer.reset();
+               lapTimer.reset();
+           }
+           //Toast.makeText(getApplicationContext(), "Race ended", Toast.LENGTH_SHORT).show();
        }
 
        private void addLap()
        {
            currentLap++;
-           setLap(currentLap);
-           lapTimer.setBase(SystemClock.elapsedRealtime());
+           if(currentLap <= totalLaps)
+           {
+               //lapTimes[currentLap] = lapTimer.getTime();
+               setLap(currentLap);
+               lapTimer.start();
+           }
+           else
+           {
+               raceTimer.stop();
+               lapTimer.stop();
+               Toast.makeText(getApplicationContext(), "Race Complete", Toast.LENGTH_SHORT).show();
+           }
+
 
        }
        private void setLap(int lap)
        {
-           if(lap <= totalLaps)
+           //Toast.makeText(getApplicationContext(), "Setting lap =  " + lap, Toast.LENGTH_SHORT).show();
+           lapTextView.setText(lap + "/"+ totalLaps);
+
+           if(lap == totalLaps)
            {
-               Toast.makeText(getApplicationContext(), "Setting lap =  " + lap, Toast.LENGTH_SHORT).show();
-               lapTextView.setText(lap + " /10");
+               lapTextView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.gaugeTextError));
+               incrementLapButton.setText("END");
+               Toast.makeText(getApplicationContext(), "LAST LAP", Toast.LENGTH_SHORT).show();
+           }
+       }
+
+       class RaceTimer
+       {
+           private Chronometer mChrono;
+           private long startTime;
+           private long elapsedTime;
+
+           RaceTimer(Chronometer chrono)
+           {
+               mChrono = chrono;
+           }
+           void start()
+           {
+               startTime = SystemClock.elapsedRealtime();
+               startAtTime(startTime);
+           }
+           void startAtTime(long base)
+           {
+               startTime = base;
+               mChrono.setBase(startTime);
+               mChrono.start();
+           }
+           void stop()
+           {
+               elapsedTime = SystemClock.elapsedRealtime() - mChrono.getBase();
+               mChrono.stop();
+           }
+           void resume()
+           {
+               mChrono.setBase(SystemClock.elapsedRealtime() - elapsedTime);
+
+           }
+           void reset()
+           {
+               elapsedTime = 0;
+               mChrono.setBase(SystemClock.elapsedRealtime());
+               mChrono.stop();
+           }
+
+           long getTime()
+           {
+               return(SystemClock.elapsedRealtime() -startTime);
            }
        }
    }

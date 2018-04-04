@@ -38,8 +38,7 @@ public class GPSHelper extends Service
 
     LocationManager locMan;         //responsible for communication with GPS module
     LocationListener locListener;   //handles location updates
-
-
+    LocationObjectProcessor locProc;//Performs all data processing from raw location object
 
     //private IBinder mBinder = new GPSHelperBinder(); //might use this as some point
 
@@ -70,12 +69,11 @@ public class GPSHelper extends Service
                 Log.d(TAG,"GPS is not available");
             }
 
-
-
         } else {
 
         }
 
+        locProc = new LocationObjectProcessor();
         /*The intent that will be used to send the locationdata asynchronously to the scope of the app*/
         locationUpdateIntent = new Intent();
         locationUpdateIntent.setAction("LOCATION_UPDATE");
@@ -113,6 +111,9 @@ public class GPSHelper extends Service
             Log.d(TAG, "Location update received");
             //speed = (float) 10.10;
 
+
+            Bundle processedData = locProc.process(location);
+
             /* this is where data is added to the intent from the location object*/
             locationUpdateIntent.putExtra("SPEED", location.getSpeed());
             locationUpdateIntent.putExtra("LATITUDE", location.getLatitude());
@@ -129,18 +130,20 @@ public class GPSHelper extends Service
         }
 
         @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
+        public void onStatusChanged(String provider, int status, Bundle extras)
+        {
 
         }
 
         @Override
         public void onProviderEnabled(String provider) {
             Log.d(TAG, "Provider enabled");
-            Toast.makeText(getApplicationContext(), "Location Provider Enabled", Toast.LENGTH_SHORT);
+            Toast.makeText(getApplicationContext(), "Location Provider: ENABLED", Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onProviderDisabled(String provider) {
+            Toast.makeText(getApplicationContext(), "Location Provider: DISABLED", Toast.LENGTH_SHORT).show();
 
         }
     }
@@ -150,4 +153,25 @@ public class GPSHelper extends Service
             return GPSHelper.this;
         }
     }*/
+
+    class LocationObjectProcessor
+    {
+        Location mLocationObj;
+        Location lastLocationObj;
+        Bundle outputBundle;
+        Bundle process(Location newLocationObj)
+        {
+            lastLocationObj = mLocationObj;
+            mLocationObj = newLocationObj;
+
+            return(outputBundle);
+
+        }
+
+        Float getSpeed()
+        {
+            return(mLocationObj.getSpeed());
+        }
+
+    }
 }
