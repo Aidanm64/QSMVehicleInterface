@@ -113,9 +113,13 @@ public class GPSHelper extends Service
 
 
             Bundle processedData = locProc.process(location);
+            int speedInt = (int) location.getSpeed();
+            //Toast.makeText(getApplicationContext(),String.valueOf(location.getSpeed()), Toast.LENGTH_LONG).show();
 
             /* this is where data is added to the intent from the location object*/
             locationUpdateIntent.putExtra("SPEED", location.getSpeed());
+            locationUpdateIntent.putExtra("SPEED_STR", String.valueOf(location.getSpeed()));
+            locationUpdateIntent.putExtra("SPEED_INT", speedInt);
             locationUpdateIntent.putExtra("LATITUDE", location.getLatitude());
             locationUpdateIntent.putExtra("LONGITUDE", location.getLongitude());
             locationUpdateIntent.putExtra("BEARING", location.getBearing());

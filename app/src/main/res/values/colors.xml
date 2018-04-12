@@ -2,12 +2,13 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#ff4081</color>
     <color name="colorBlack">#000000</color>
     <color name="colorHUDBackground">#90afc6</color>
     <color name="black_overlay">#66000000</color>
     <color name="gaugeBackground">#36352f</color>
     <color name="gaugeTextNormal">#24bf00</color>
+    <color name="gaugeTextNormalDark">#1a8c00</color>
     <color name="gaugeTextWarning">#b3b000</color>
     <color name="gaugeTextError">#ff0000</color>
 

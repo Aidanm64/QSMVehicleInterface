@@ -7,186 +7,243 @@
     android:background="@color/colorHUDBackground"
     tools:context="com.qsm.aidan_mckenna.qsmvehicleinterface.HUD">
 
-    <Button
-        android:id="@+id/returnButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="8dp"
-        android:text="Return"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/controlsContraintLayout"
-        android:layout_width="422dp"
-        android:layout_height="172dp"
+        android:id="@+id/raceControllerContraintLayout"
+        android:layout_width="291dp"
+        android:layout_height="0dp"
         android:background="@color/black_overlay"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
 
-        <TextView
-            android:id="@+id/raceTitleTextView2"
-            android:layout_width="39dp"
-            android:layout_height="30dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="8dp"
-            android:text="Race:"
-            app:layout_constraintBottom_toTopOf="@+id/lapTitleTextView"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
-            android:id="@+id/endRaceButton"
-            android:layout_width="44dp"
-            android:layout_height="38dp"
-            android:layout_marginStart="8dp"
-            android:text="ST"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/startRaceButton" />
-
-        <Button
-            android:id="@+id/pauseRaceButton"
-            android:layout_width="44dp"
-            android:layout_height="37dp"
-            android:layout_marginTop="8dp"
-            android:text="||"
-            app:layout_constraintStart_toEndOf="@+id/startRaceButton"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <Button
-            android:id="@+id/startRaceButton"
-            android:layout_width="44dp"
-            android:layout_height="37dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:text=">"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <Chronometer
-            android:id="@+id/raceChronometer"
-            android:layout_width="125dp"
-            android:layout_height="30dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="8dp"
-            android:background="@color/timerBackground"
-            android:textAlignment="center"
-            android:textSize="24sp"
-            app:layout_constraintBottom_toTopOf="@+id/lapChronometer"
-            app:layout_constraintStart_toEndOf="@+id/raceTitleTextView2" />
-
-        <Chronometer
-            android:id="@+id/lapChronometer"
-            android:layout_width="124dp"
-            android:layout_height="30dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="8dp"
-            android:background="@color/timerBackground"
-            android:textAlignment="center"
-            android:textSize="24sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/lapTitleTextView" />
-
-        <TextView
-            android:id="@+id/lapTitleTextView"
-            android:layout_width="39dp"
-            android:layout_height="30dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="8dp"
-            android:text="Lap:"
-            android:textAlignment="textStart"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
-            android:id="@+id/incrementLapButton"
-            android:layout_width="108dp"
-            android:layout_height="153dp"
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/chronosContraintLayout"
+            android:layout_width="278dp"
+            android:layout_height="0dp"
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="LAP"
-            android:textSize="36sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/controlsContraintLayout"
-            app:layout_constraintTop_toTopOf="@+id/controlsContraintLayout" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lapConstraintLayout">
 
-        <TextView
-            android:id="@+id/lapTextView"
-            android:layout_width="178dp"
-            android:layout_height="69dp"
-            android:layout_marginEnd="4dp"
+            <Button
+                android:id="@+id/endRaceButton"
+                android:layout_width="42dp"
+                android:layout_height="39dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/lapTitleTextView"
+                android:layout_width="@dimen/timer_column_width"
+                android:layout_height="30dp"
+                android:text="Lap:"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/raceTitleTextView2" />
+
+            <Chronometer
+                android:id="@+id/lapChronometer"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:background="@color/timerBackground"
+                android:textAlignment="center"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@+id/lapTitleTextView"
+                app:layout_constraintTop_toBottomOf="@+id/raceChronometer" />
+
+            <Chronometer
+                android:id="@+id/raceChronometer"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:background="@color/timerBackground"
+                android:textAlignment="center"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/raceTitleTextView2"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/raceTitleTextView2"
+                android:layout_width="@dimen/timer_column_width"
+                android:layout_height="30dp"
+                android:text="Race:"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/lapConstraintLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:background="@color/gaugeBackground"
-            android:textAlignment="center"
-            android:textSize="48sp"
-            app:layout_constraintEnd_toStartOf="@+id/incrementLapButton"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <Button
+                android:id="@+id/incrementLapButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:text="LAP"
+                android:textSize="56sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@+id/constraintLayout2"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/constraintLayout2"
+                android:layout_width="132dp"
+                android:layout_height="161dp"
+                android:layout_marginTop="6dp"
+                android:background="@color/gaugeBackground"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/totalLapsTextView"
+                    android:layout_width="45dp"
+                    android:layout_height="51dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:lineSpacingExtra="0sp"
+                    android:text="10"
+                    android:textAlignment="center"
+                    android:textColor="@color/gaugeTextNormalDark"
+                    android:textSize="40sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.93"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="1.0" />
+
+                <TextView
+                    android:id="@+id/lapTextView"
+                    android:layout_width="130dp"
+                    android:layout_height="124dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="10"
+                    android:textAlignment="center"
+                    android:textAppearance="@android:style/TextAppearance.Material.Large"
+                    android:textSize="100sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.114"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0" />
+
+            </android.support.constraint.ConstraintLayout>
+
+        </android.support.constraint.ConstraintLayout>
 
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/raceTelemetryContraintLayout"
-        android:layout_width="298dp"
-        android:layout_height="155dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="16dp"
+        android:layout_width="0dp"
+        android:layout_height="243dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toStartOf="@+id/raceControllerContraintLayout"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <TextView
-            android:id="@+id/speedTitleTextView"
-            android:layout_width="118dp"
-            android:layout_height="34dp"
-            android:layout_marginEnd="4dp"
-            android:text="KM/H"
-            android:textAlignment="center"
-            android:textSize="26sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/rpmTextView"
-            android:layout_width="118dp"
-            android:layout_height="110dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:background="@color/gaugeBackground"
-            android:textAlignment="center"
-            android:textColor="@color/gaugeTextNormal"
-            android:textSize="64sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/rpmTitleTextView"
-            app:layout_constraintVertical_bias="1.0" />
-
-        <TextView
-            android:id="@+id/speedometerTextView"
-            android:layout_width="118dp"
-            android:layout_height="110dp"
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/rpmConstraintLayout"
+            android:layout_width="107dp"
+            android:layout_height="103dp"
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="4dp"
-            android:layout_marginTop="8dp"
-            android:background="@color/gaugeBackground"
-            android:textAlignment="center"
-            android:textColor="@color/gaugeTextNormal"
-            android:textSize="64sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/speedTitleTextView"
-            app:layout_constraintVertical_bias="0.888" />
-
-        <TextView
-            android:id="@+id/rpmTitleTextView"
-            android:layout_width="118dp"
-            android:layout_height="34dp"
             android:layout_marginStart="8dp"
-            android:text="RPM"
-            android:textAlignment="center"
-            android:textSize="26sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:background="?attr/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/speedometerConstraintLayout"
+            app:layout_constraintHorizontal_bias="0.985"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:id="@+id/rpmTextView"
+                android:layout_width="108dp"
+                android:layout_height="74dp"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="64sp"
+                app:layout_constraintBottom_toTopOf="@+id/rpmTitleTextView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/rpmTitleTextView"
+                android:layout_width="83dp"
+                android:layout_height="38dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="56dp"
+                android:text="RPM"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Button"
+                android:textSize="26sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.786" />
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/speedometerConstraintLayout"
+            android:layout_width="107dp"
+            android:layout_height="103dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="4dp"
+            android:background="?attr/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/speedometerTextView"
+                android:layout_width="109dp"
+                android:layout_height="74dp"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="64sp"
+                app:layout_constraintBottom_toTopOf="@+id/speedTitleTextView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/speedTitleTextView"
+                android:layout_width="83dp"
+                android:layout_height="38dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="56dp"
+                android:text="KM/H"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Button"
+                android:textSize="26sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.786" />
+        </android.support.constraint.ConstraintLayout>
 
     </android.support.constraint.ConstraintLayout>
 

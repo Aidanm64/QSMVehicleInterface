@@ -37,7 +37,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".ConfigActivity" />
-        <activity android:name=".HUD"/>
+        <activity
+            android:name=".HUD"
+            android:screenOrientation="landscape">
+        </activity>
         <service android:name=".GPSHelper"/>
         <service android:name=".SensorsHelper"/>
         <service android:name=".BluetoothHelper"/>

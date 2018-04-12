@@ -1,8 +1,10 @@
 package com.qsm.aidan_mckenna.qsmvehicleinterface;
 
+import android.app.AlertDialog;
 import android.app.VoiceInteractor;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.SystemClock;
@@ -19,7 +21,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Optional;
+import java.util.Timer;
 
 /**
 The purpose if the HUD activity is to provide an interface for the driver of the QSM vehicle
@@ -61,7 +66,7 @@ public class HUD extends AppCompatActivity {
         speedometerTextView = findViewById(R.id.speedometerTextView);
         rpmTextView = findViewById(R.id.rpmTextView);
 
-
+/*
         //setting up actions for return button
         Button returnButton = findViewById(R.id.returnButton);
         returnButton.setOnClickListener(new View.OnClickListener() {
@@ -71,6 +76,7 @@ public class HUD extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        */
     }
 
     @Override
@@ -145,7 +151,8 @@ public class HUD extends AppCompatActivity {
             Log.d(TAG, "Location Update Received");
 
             Bundle bundle = intent.getExtras();
-            Float speed = bundle.getFloat("SPEED");
+            float speed = bundle.getFloat("SPEED");
+            //Toast.makeText(getApplicationContext(), ""+speed, Toast.LENGTH_SHORT).show();
             updateSpeedometer(speed);
 
         }
@@ -154,7 +161,7 @@ public class HUD extends AppCompatActivity {
 
     /* updateSpeedometer is called when a new locationdata intent is received by the broadcastReciever
     its purpose is to update all UI elements that require GPS data (speed, distance, bearing) */
-    private void updateSpeedometer(Float speed)
+    private void updateSpeedometer(float speed)
     {
         //ProgressBar speedometerProgressBar = findViewById(R.id.speedometerProgressBar);
 
@@ -229,92 +236,93 @@ public class HUD extends AppCompatActivity {
     //Class that contains
    private class C_Race
    {
-       RaceTimer raceTimer;
-       RaceTimer lapTimer;
+       SimpleTimer raceTimer;
+       SimpleTimer lapTimer;
        Chronometer raceChronoView;
        Chronometer lapChronoView;
 
        TextView lapTextView;
+       TextView totalLapsTextView;
        Button startRaceButton;
        Button pauseRaceButton;
        Button stopRaceButton;
        Button incrementLapButton;
 
+
        int currentLap = 0;
        int totalLaps;
-       long lapTimes[];
+       long lapTimes[];     //array of lap times to be stored in a file
 
+       AlertDialog.Builder endRaceDialogBuilder;
+       AlertDialog endRaceDialog;
 
        String TAG = "Race Timer";
 
        private boolean inRace;
 
+       File raceDataDirectory;
+       FileOutputStream outputStream;
 
        public C_Race(int totalLaps)
        {
-           this.totalLaps = totalLaps;
-           lapTimes = new long[totalLaps];
-           inRace = false;
+           raceDataDirectory = getFilesDir();
 
+           this.totalLaps = totalLaps;      //set total laps
+           lapTimes = new long[totalLaps];  //
+           inRace = false;
+           //setLap(0);
+
+           initUIelements();
+           initDialogs();
+       }
+
+       private void initUIelements()
+       {
            raceChronoView = findViewById(R.id.raceChronometer);
            lapChronoView = findViewById(R.id.lapChronometer);
-           raceTimer = new RaceTimer(raceChronoView);
-           lapTimer = new RaceTimer(lapChronoView);
+           raceTimer = new SimpleTimer(raceChronoView);
+           lapTimer = new SimpleTimer(lapChronoView);
+
 
            lapTextView = findViewById(R.id.lapTextView);
+           lapTextView.setText(String.valueOf(0));
+           totalLapsTextView = findViewById(R.id.totalLapsTextView);
+           totalLapsTextView.setText(String.valueOf(totalLaps));
+
            lapTextView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.gaugeTextNormal));
-
-           pauseRaceButton = findViewById(R.id.pauseRaceButton);
-
-
 
 
            /*These buttons are to be used for the race timer
            * Seriously debating making a fragment for this cus i think it would be dope and better
            * */
-
-           startRaceButton = findViewById(R.id.startRaceButton);
-           startRaceButton.setOnClickListener(new View.OnClickListener(){
-               @Override
-               public void onClick(View v){
-                   startRace();
-               }
-           });
-
-           pauseRaceButton = findViewById(R.id.pauseRaceButton);
-           pauseRaceButton.setOnClickListener(new View.OnClickListener(){
-               @Override
-               public void onClick(View v){
-                   pause();
-               }
-           });
-
            stopRaceButton = findViewById(R.id.endRaceButton);
-           stopRaceButton.setOnClickListener(new View.OnClickListener() {
-               @Override
-               public void onClick(View v) {
-                   end();
-               }
-           });
+           stopRaceButton.setOnClickListener(new stopButtonListener());
 
            incrementLapButton = findViewById(R.id.incrementLapButton);
+           incrementLapButton.setOnClickListener(new controlButtonListener());
            incrementLapButton.setText(">");
-           incrementLapButton.setOnClickListener(new View.OnClickListener(){
+
+
+       }
+
+       private void initDialogs()
+       {
+           endRaceDialogBuilder = new AlertDialog.Builder(HUD.this);
+
+           endRaceDialogBuilder.setMessage("End race now?");
+           endRaceDialogBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                @Override
-               public void onClick(View v){
-                   if(inRace)
-                   {
-                       addLap();
-                   }
-                   else
-                   {
-                       startRace();
-                   }
-                   //Toast.makeText(getApplicationContext(), "incrementing lap", Toast.LENGTH_SHORT).show();
+               public void onClick(DialogInterface dialog, int which) {
+                   endRace();
+               }
+           });
+           endRaceDialogBuilder.setNegativeButton(R.string.returnToRace, new DialogInterface.OnClickListener() {
+               @Override
+               public void onClick(DialogInterface dialog, int which) {
                }
            });
 
-           setLap(0);
+           endRaceDialog = endRaceDialogBuilder.create();
        }
 
        void startRace()
@@ -340,22 +348,16 @@ public class HUD extends AppCompatActivity {
            raceTimer.stop();
            lapTimer.stop();
        }
-       void end()
+       void endRace()
        {
-           raceTimer.stop();
-           lapTimer.stop();
-
-           if(!inRace)
-           {
-               inRace = false;
-               setLap(0);
-           }
-           else if(inRace && currentLap == totalLaps)
-           {
-               raceTimer.reset();
-               lapTimer.reset();
-           }
+           inRace = false;
+           raceTimer.reset();
+           lapTimer.reset();
            //Toast.makeText(getApplicationContext(), "Race ended", Toast.LENGTH_SHORT).show();
+           currentLap = 0;
+           setLap(0);
+           initUIelements();
+
        }
 
        private void addLap()
@@ -369,18 +371,23 @@ public class HUD extends AppCompatActivity {
            }
            else
            {
-               raceTimer.stop();
-               lapTimer.stop();
+               endRaceDialog.show();
                Toast.makeText(getApplicationContext(), "Race Complete", Toast.LENGTH_SHORT).show();
            }
-
 
        }
        private void setLap(int lap)
        {
            //Toast.makeText(getApplicationContext(), "Setting lap =  " + lap, Toast.LENGTH_SHORT).show();
-           lapTextView.setText(lap + "/"+ totalLaps);
 
+           /*
+           if(lap>9)
+               lapTextView.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+           else
+               lapTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            */
+
+           lapTextView.setText(String.valueOf(lap));
            if(lap == totalLaps)
            {
                lapTextView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.gaugeTextError));
@@ -388,48 +395,45 @@ public class HUD extends AppCompatActivity {
                Toast.makeText(getApplicationContext(), "LAST LAP", Toast.LENGTH_SHORT).show();
            }
        }
-
-       class RaceTimer
+       class LapCounter
        {
-           private Chronometer mChrono;
-           private long startTime;
-           private long elapsedTime;
-
-           RaceTimer(Chronometer chrono)
+           int currentLap;
+           int totalLaps;
+           TextView mTextView;
+           LapCounter(TextView textView, int maxLaps)
            {
-               mChrono = chrono;
+               this.totalLaps = maxLaps;
            }
-           void start()
+           void updateUI()
            {
-               startTime = SystemClock.elapsedRealtime();
-               startAtTime(startTime);
-           }
-           void startAtTime(long base)
-           {
-               startTime = base;
-               mChrono.setBase(startTime);
-               mChrono.start();
-           }
-           void stop()
-           {
-               elapsedTime = SystemClock.elapsedRealtime() - mChrono.getBase();
-               mChrono.stop();
-           }
-           void resume()
-           {
-               mChrono.setBase(SystemClock.elapsedRealtime() - elapsedTime);
 
            }
-           void reset()
+           void addLap()
            {
-               elapsedTime = 0;
-               mChrono.setBase(SystemClock.elapsedRealtime());
-               mChrono.stop();
+
            }
 
-           long getTime()
-           {
-               return(SystemClock.elapsedRealtime() -startTime);
+       }
+
+       class stopButtonListener implements View.OnClickListener
+       {
+           @Override
+           public void onClick(View v) {
+               if(inRace) {
+                   endRaceDialog.show();
+               }
+           }
+       }
+       class controlButtonListener implements View.OnClickListener
+       {
+           @Override
+           public void onClick(View v) {
+               if (inRace) {
+                   addLap();
+               } else {
+                   startRace();
+               }
+               //Toast.makeText(getApplicationContext(), "incrementing lap", Toast.LENGTH_SHORT).show();
            }
        }
    }

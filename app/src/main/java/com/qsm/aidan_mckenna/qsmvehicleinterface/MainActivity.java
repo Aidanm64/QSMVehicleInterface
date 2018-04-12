@@ -2,6 +2,7 @@ package com.qsm.aidan_mckenna.qsmvehicleinterface;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
