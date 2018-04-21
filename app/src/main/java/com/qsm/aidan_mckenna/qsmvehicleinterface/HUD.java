@@ -38,7 +38,7 @@ This will ensure that the only operations/calculations performed the HUD activit
 
 public class HUD extends AppCompatActivity {
 
-    /*logging tag*/
+
     static private final String TAG = "HUD";
 
     //define listeners to be used
@@ -58,10 +58,11 @@ public class HUD extends AppCompatActivity {
         //for fullscreen
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //access xml members
         setContentView(R.layout.activity_hud);
-        raceTimer = new C_Race(10);
+        raceTimer = new C_Race(7);
 
         speedometerTextView = findViewById(R.id.speedometerTextView);
         rpmTextView = findViewById(R.id.rpmTextView);
@@ -77,6 +78,7 @@ public class HUD extends AppCompatActivity {
             }
         });
         */
+
     }
 
     @Override
@@ -85,28 +87,45 @@ public class HUD extends AppCompatActivity {
         super.onStart();
         Log.d(TAG, "HUD Activity started");
 
+        checkServiceStatus();
+
         //sets the broadcast listeners to receive specific intents based on filters
         registerListeners();
 
+
     }
     @Override
-    protected void onResume() {super.onResume();}
+    protected void onResume() {
+        super.onResume();
+    }
     @Override
-    protected void onPause() {super.onPause();}
+    protected void onPause() {
+        super.onPause();
+    }
     @Override
     protected void onStop()
     {
         super.onStop();
 
         /* ensure all receivers are disable when the app leaves the foreground */
-        unregisterReceiver(GPSListener);
-        unregisterReceiver(SensListener);
-        unregisterReceiver(BTListener);
+        unregisterListeners();
     }
 
     @Override
     protected void onDestroy() {super.onDestroy();}
 
+    void checkServiceStatus()
+    {
+        if(GPSHelper.IS_RUNNING)
+        {
+            TextView gpsflag = findViewById(R.id.GPS_EN_flag);
+            gpsflag.setBackgroundColor(ContextCompat.getColor(getApplicationContext(),R.color.gaugeTextNormal));
+        }
+        else {
+            TextView gpsflag = findViewById(R.id.GPS_EN_flag);
+            gpsflag.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.gaugeTextError));
+        }
+    }
     /* -----------------------------------------------------------------------------------------------------*/
     /* -----------------------------------------------------------------------------------------------------*/
     /** Race timer and stuff like that
@@ -140,9 +159,20 @@ public class HUD extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), "Listeners started",Toast.LENGTH_SHORT).show();
     }
 
+    void unregisterListeners()
+    {
+        unregisterReceiver(GPSListener);
+        unregisterReceiver(SensListener);
+        unregisterReceiver(BTListener);
+    }
     /* -----------------------------------------------------------------------------------------------------*/
     /** GPS based elements*/
     /* Broadcast receiver responsible for catching the location updates sent by the GPS helper*/
+
+    boolean gpsSignalStatus;
+    float gpsAccuracy;
+
+
     class GPSHelperListener extends BroadcastReceiver
     {
         @Override
@@ -155,12 +185,15 @@ public class HUD extends AppCompatActivity {
             //Toast.makeText(getApplicationContext(), ""+speed, Toast.LENGTH_SHORT).show();
             updateSpeedometer(speed);
 
+            updateStatus(bundle.getBoolean("SIGNAL_ACQUIRED"), bundle.getFloat("ACCURACY"));
         }
 
     }
 
-    /* updateSpeedometer is called when a new locationdata intent is received by the broadcastReciever
-    its purpose is to update all UI elements that require GPS data (speed, distance, bearing) */
+    /* updateSpeedometer is called when a new locationdata intent is received by the broadcastReciever*/
+
+    int maxSpeed = 40;
+
     private void updateSpeedometer(float speed)
     {
         //ProgressBar speedometerProgressBar = findViewById(R.id.speedometerProgressBar);
@@ -168,9 +201,33 @@ public class HUD extends AppCompatActivity {
         //float progressBarValue = speed/100*speedometerProgressBar.getMax();
         //speedometerProgressBar.setProgress((int) progressBarValue);
 
+        if(speed > maxSpeed)
+        {
+            speedometerTextView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.gaugeTextError));
+        }
+        else if(speed<maxSpeed)
+        {
+            speedometerTextView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.gaugeTextNormal));
+        }
         speedometerTextView.setText(String.valueOf(speed));
     }
 
+    private void updateStatus(boolean sig, float accuracy)
+    {
+
+        if(sig!=gpsSignalStatus)
+        {
+            gpsSignalStatus = sig;
+            if(gpsSignalStatus == true)
+            {
+
+            }
+        }
+        if(accuracy!=gpsAccuracy)
+        {
+
+        }
+    }
 
     /* -----------------------------------------------------------------------------------------------------*/
     /** Sensor based elements */
@@ -182,14 +239,19 @@ public class HUD extends AppCompatActivity {
         public void onReceive(Context context, Intent intent)
         {
             Log.d(TAG, "Sensor Update Received");
+            Bundle bundle = intent.getExtras();
 
-            //updateRMPGauge(RPM);
+            updateAccelGauge(bundle.getFloat("LINEAR_ACCELERATION"));
+
         }
     }
 
+    void updateAccelGauge(float linAccel)
+    {
+        TextView accelTextView = findViewById(R.id.accelTextView);
+        accelTextView.setText(String.valueOf(linAccel));
 
-
-
+    }
 
     /* -----------------------------------------------------------------------------------------------------*/
     /** Bluetooth/Network based elements
@@ -248,7 +310,6 @@ public class HUD extends AppCompatActivity {
        Button stopRaceButton;
        Button incrementLapButton;
 
-
        int currentLap = 0;
        int totalLaps;
        long lapTimes[];     //array of lap times to be stored in a file
@@ -262,6 +323,8 @@ public class HUD extends AppCompatActivity {
 
        File raceDataDirectory;
        FileOutputStream outputStream;
+
+       BroadcastReceiver LocationService;
 
        public C_Race(int totalLaps)
        {
@@ -436,5 +499,33 @@ public class HUD extends AppCompatActivity {
                //Toast.makeText(getApplicationContext(), "incrementing lap", Toast.LENGTH_SHORT).show();
            }
        }
+       class GPSHelperListener extends BroadcastReceiver
+       {
+           @Override
+           public void onReceive(Context context, Intent intent)
+           {
+               Log.d(TAG, "Location Update Received");
+
+           }
+
+       }
+
    }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("Exit race?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+
+                })
+                .setNegativeButton("No", null)
+                .show();
+    }
 }

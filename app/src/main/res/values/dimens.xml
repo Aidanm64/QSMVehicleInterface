@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="timer_spacing">4</dimen>
+    <dimen name="oneDigit">100sp</dimen>
+    <dimen name="twoDigit">80sp</dimen>
+    <dimen name="timer_column_width">100dp</dimen>
+</resources>

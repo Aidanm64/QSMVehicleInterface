@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -16,6 +17,8 @@ import android.view.View;
 import android.widget.Button;
 import android.util.Log;
 import android.widget.Toast;
+
+import java.io.File;
 
 /*
 
@@ -51,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
         verifyHardwareEnabled();
         startBackgroundServices();
 
+        //DataServicesManager servMan = new DataServicesManager();
+        //new Thread(servMan).start();
+
 
         //register navigation buttons for interaction
         Button configActivityButton = findViewById(R.id.configActivityButton);
@@ -70,18 +76,25 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        Button enableBluetoothButton = findViewById(R.id.BTenableButton);
+        enableBluetoothButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent BluetoothHelperServiceIntent = new Intent(getApplicationContext(), BluetoothHelper.class);
+                startService(BluetoothHelperServiceIntent);
+            }
+        });
     }
-    /**IMPORTANT: ensure all services are stopped in the MainActivity onStop()*/
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
     @Override
     protected void onStop()
     {
         super.onStop();
-
-        //stops the background services as the app closes
-        stopService(new Intent(getApplicationContext(), GPSHelper.class));
-        stopService(new Intent(getApplicationContext(), SensorsHelper.class));
-        stopService(new Intent(getApplicationContext(), BluetoothHelper.class));
-        Log.d(TAG, "Services Stopped");
     }
     /* -----------------------------------------------------------------------------------------------------*/
     @Override
@@ -91,32 +104,40 @@ public class MainActivity extends AppCompatActivity {
 
     /* -----------------------------------------------------------------------------------------------------*/
     /* -----------------------------------------------------------------------------------------------------*/
-    /** STARTUP METHODS
+    /** Setup Thread
      *
      * Put functions here that are to be called at startup
      */
+    class DataServicesManager implements Runnable
+    {
+        @Override
+        public void run()
+        {
+            //verifyPermissions();
+            //verifyHardwareEnabled();
+            //startBackgroundServices();
+        }
+    }
+
+
     /* This is the function that starts all background services
     * ensure that all services started here have a corresponding stopService condition in onDestroy()*/
     private void startBackgroundServices()
     {
-
             //Initializes the GPS helper to run in the background
             Intent GPSHelperServiceIntent = new Intent(getApplicationContext(), GPSHelper.class);
             startService(GPSHelperServiceIntent);
             Log.d(TAG, "GPS Service started");
 
             Intent SensorsHelperServiceIntent = new Intent(getApplicationContext(), SensorsHelper.class);
-            //startService(SensorsHelperServiceIntent);
-            //Log.d(TAG, "Sensor Service started");
+            startService(SensorsHelperServiceIntent);
+            Log.d(TAG, "Sensor Service started");
 
-            Intent BluetoothHelperServiceIntent = new Intent(getApplicationContext(), BluetoothHelper.class);
+            //Intent BluetoothHelperServiceIntent = new Intent(getApplicationContext(), BluetoothHelper.class);
             //startService(BluetoothHelperServiceIntent);
-            //Log.d(TAG, "Bluetooth Service started");f
-
-
+            //Log.d(TAG, "Bluetooth Service started");
 
     }
-
     /* This provides all the pop up verification for device permissions such as GPS access*/
     private void verifyPermissions()
     {
@@ -139,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
             Intent enableBTIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBTIntent, MY_BT_ENABLED);
         }*/
+
     }
 
     /* This is just the catcher for result codes from startActivityForResult() or reQuestPermissions()
@@ -165,17 +187,36 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-
-
-    class DataServicesManager implements Runnable
-    {
-        @Override
-        public void run()
-        {
-
+    /*
+Used a couple things from the android website for external storage
+ */
+    /* Checks if external storage is available for read and write */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
         }
+        return false;
+    }
 
+    /* Checks if external storage is available to at least read */
+    public boolean isExternalStorageReadable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
+    public File getPublicDocumentsStorageDir(String folderName) {
+        // Get the directory for the user's public pictures directory.
+        File file = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOCUMENTS), folderName);
+        if (!file.mkdirs()) {
+            Log.e(TAG, "Directory not created");
+        }
+        return file;
     }
 
 }

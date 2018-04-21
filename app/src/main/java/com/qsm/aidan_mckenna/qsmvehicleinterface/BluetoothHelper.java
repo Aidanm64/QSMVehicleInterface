@@ -1,8 +1,11 @@
 package com.qsm.aidan_mckenna.qsmvehicleinterface;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Socket;
 import java.util.UUID;
 import android.app.Service;
 import android.app.Activity;
@@ -14,6 +17,7 @@ import android.content.Intent;
 import android.icu.util.Output;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.ParcelUuid;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
@@ -63,10 +67,10 @@ public class BluetoothHelper extends Service {
 
     private static final String TAG = "BluetoothHelperService";
 
-    private static final int BTtimeout = 1000;
+    private static final int BTtimeout = 10000;
 
-    private String EFIBluetoothModuleName;
-    private String EFIMACaddress;
+    private String EFIBluetoothModuleName = "EcotronsA247";
+    private String EFIMACaddress = "20:17:03:22:20:85";
     private UUID defaultUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     BluetoothAdapter mBluetoothAdapter;
@@ -74,7 +78,7 @@ public class BluetoothHelper extends Service {
 
     BluetoothSocket EFISocket;
     BluetoothServerSocket EFIServerSocket;
-    OutputStream EFIOutput;
+    InputStream EFIDataStream;
     Byte[] byteData;
 
     @Override
@@ -93,34 +97,89 @@ public class BluetoothHelper extends Service {
     private void initBluetooth() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
+        EFIBTModule = mBluetoothAdapter.getRemoteDevice(EFIMACaddress);
+
+        String name = EFIBTModule.getName();
+        Toast.makeText(getApplicationContext(),"Connected to " + name, Toast.LENGTH_SHORT).show();
+
+
+
+        try {
+            EFISocket = EFIBTModule.createInsecureRfcommSocketToServiceRecord(defaultUUID);
+                    //createRfcommSocketToServiceRecord(defaultUUID);
+        }
+        catch(Exception e)
+        {
+            Log.d(TAG, "Error creating BT socket");
+            Toast.makeText(getApplicationContext(), "Error creating BT socket", Toast.LENGTH_SHORT).show();
+        }
+
         try
         {
-            EFIServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(EFIBluetoothModuleName, defaultUUID);
+            EFISocket.connect();
+            Log.d(TAG, "Device Connected");
         }
-        catch(Exception e)
+        catch(IOException e)
         {
-
+            Log.d(TAG, "Closing socket");
+            try {
+                EFISocket.close();
+            } catch (IOException closeException) {
+                Log.e(TAG, "Could not close the client socket", closeException);
+            }
         }
+
 
         try {
-            EFISocket = EFIServerSocket.accept(BTtimeout);
-        }
-        catch(Exception e)
-        {
-            Toast.makeText(getApplicationContext(), "Failed to connect to EFI", Toast.LENGTH_SHORT).show();
-        }
-
-        try {
-            EFIServerSocket.close();
+            EFIDataStream =  EFISocket.getInputStream();
+            Log.d(TAG, "Input stream acquired");
         } catch (IOException e) {
+            Log.d(TAG, "Error acquiring input stream");
             e.printStackTrace();
         }
 
         try {
-            EFIOutput = EFISocket.getOutputStream();
-        } catch (IOException e) {
+            int data = EFIDataStream.read();
+            Log.d(TAG, "BT_DATA = "+ data);
+            Toast.makeText(getApplicationContext(), "EFI_DATA = " + data, Toast.LENGTH_SHORT).show();
+
+        }
+        catch(Exception e)
+        {
             e.printStackTrace();
         }
+
+//        try
+//        {
+//            EFIServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(EFIBluetoothModuleName, defaultUUID);
+//            Log.d(TAG,"Server Socket initialized");
+//        }
+//        catch(Exception e)
+//        {
+//            Log.d(TAG, "Error initializing Server Socket");
+//        }
+//
+//        try {
+//            EFISocket = EFIServerSocket.accept(BTtimeout);
+//        }
+//        catch(Exception e)
+//        {
+//            Toast.makeText(getApplicationContext(), "Failed to connect to EFI", Toast.LENGTH_SHORT).show();
+//            Log.d(TAG,"Failed to connect to create bluetooth socket");
+//        }
+//
+//        try {
+//            EFIServerSocket.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        try {
+//            EFIOutput = EFISocket.getOutputStream();
+//        } catch (Exception e) {
+//            Log.d(TAG, "Error recovering output stream");
+//            e.printStackTrace();
+//        }
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.qsm.aidan_mckenna.qsmvehicleinterface;
 
 import android.app.Activity;
+import android.app.Application;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +20,10 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Calendar;
+
 /**
  * Created by aidan_mckenna on 2018-03-07.
  *
@@ -35,6 +40,9 @@ public class GPSHelper extends Service
     //debugging tag
     private static final String TAG = "GPSHelper";
 
+    public static boolean IS_RUNNING;
+
+    boolean provider_enabled;
 
     LocationManager locMan;         //responsible for communication with GPS module
     LocationListener locListener;   //handles location updates
@@ -63,10 +71,13 @@ public class GPSHelper extends Service
                 Log.d(TAG, "listening for location changes");
 
                 Toast.makeText(getApplicationContext(), "GPS service initiated", Toast.LENGTH_LONG).show();
+
+                IS_RUNNING = true;
             }
             else
             {
                 Log.d(TAG,"GPS is not available");
+                IS_RUNNING = false;
             }
 
         } else {
@@ -93,6 +104,13 @@ public class GPSHelper extends Service
 
     }
 
+    public void onDestroy()
+    {
+        IS_RUNNING = false;
+        super.onDestroy();
+
+    }
+
     public IBinder onBind(Intent intent) {
 
         return null;
@@ -108,17 +126,24 @@ public class GPSHelper extends Service
         @Override
         public void onLocationChanged(Location location)
         {
+            if(!provider_enabled)
+            {
+
+            }
             Log.d(TAG, "Location update received");
             //speed = (float) 10.10;
 
 
             Bundle processedData = locProc.process(location);
-            int speedInt = (int) location.getSpeed();
+            int speedInt = (int) location.getSpeed()*36/10;
             //Toast.makeText(getApplicationContext(),String.valueOf(location.getSpeed()), Toast.LENGTH_LONG).show();
 
+            locationUpdateIntent.putExtra("SIG_ACQUIRED", provider_enabled);
+            locationUpdateIntent.putExtra("ACCURACY", location.getAccuracy());
+
             /* this is where data is added to the intent from the location object*/
-            locationUpdateIntent.putExtra("SPEED", location.getSpeed());
-            locationUpdateIntent.putExtra("SPEED_STR", String.valueOf(location.getSpeed()));
+            locationUpdateIntent.putExtra("SPEED", location.getSpeed()*36/10);
+            locationUpdateIntent.putExtra("SPEED_STR", String.valueOf(location.getSpeed()*3.6));
             locationUpdateIntent.putExtra("SPEED_INT", speedInt);
             locationUpdateIntent.putExtra("LATITUDE", location.getLatitude());
             locationUpdateIntent.putExtra("LONGITUDE", location.getLongitude());
@@ -142,13 +167,19 @@ public class GPSHelper extends Service
         @Override
         public void onProviderEnabled(String provider) {
             Log.d(TAG, "Provider enabled");
+            provider_enabled = true;
+            locationUpdateIntent.putExtra("PROVIDER_ENABLED", provider_enabled);
+            sendBroadcast(locationUpdateIntent);
             Toast.makeText(getApplicationContext(), "Location Provider: ENABLED", Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onProviderDisabled(String provider) {
             Toast.makeText(getApplicationContext(), "Location Provider: DISABLED", Toast.LENGTH_SHORT).show();
-
+            provider_enabled = false;
+            locationUpdateIntent.putExtra("PROVIDER_ENABLED", provider_enabled);
+            sendBroadcast(locationUpdateIntent);
+            IS_RUNNING = false;
         }
     }
 
@@ -177,5 +208,23 @@ public class GPSHelper extends Service
             return(mLocationObj.getSpeed());
         }
 
+    }
+
+    class GPSLogger implements Runnable
+    {
+        File externalDir;
+        String timeAndDate;
+
+        FileOutputStream oStream;
+
+        public void GPSLogger() {
+            //externalDir = ((QSMapplication) getApplication()).getExternalDocsDir();
+            timeAndDate = Calendar.getInstance().getTime().toString();
+
+        }
+        public void run()
+        {
+
+        }
     }
 }
